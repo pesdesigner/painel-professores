@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" role="img" aria-label="Foto padrão de professor">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d7efe8"/>
+      <stop offset="100%" stop-color="#f4ead8"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="300" fill="url(#bg)"/>
+  <circle cx="150" cy="110" r="52" fill="#87a7a2"/>
+  <path d="M52 266c6-55 46-90 98-90s92 35 98 90" fill="#6f8f8a"/>
+  <text x="150" y="286" text-anchor="middle" font-family="Segoe UI, Tahoma, sans-serif" font-size="20" fill="#21433f">Sem foto</text>
+</svg>
