@@ -25,6 +25,13 @@ public class ProfessorService {
                 .collect(Collectors.toList());
     }
 
+    public List<ProfessorDTO> findProfessors(String search, String filter) {
+        // Call the repository method with the provided parameters
+        return professorRepository.findBySearchAndFilter(search, filter).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     public Optional<ProfessorDTO> findById(Long id) {
         return professorRepository.findById(id).map(this::convertToDTO);
     }

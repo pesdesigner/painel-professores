@@ -27,6 +27,17 @@ public class ProfessorController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProfessorDTO>> findProfessors(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "todos") String filter) {
+        List<ProfessorDTO> professors = professorService.findProfessors(search, filter);
+        if (professors.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(professors);
+    }
+
     @GetMapping("/unidade/{unidade}")
     public ResponseEntity<List<ProfessorDTO>> findByUnidade(@PathVariable String unidade) {
         List<ProfessorDTO> professores = professorService.findByUnidade(unidade);

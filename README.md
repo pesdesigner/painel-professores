@@ -75,3 +75,56 @@ A tela principal ainda realiza a lógica de busca e filtros no frontend, com as 
 ## Observação
 
 A integração com o backend já está implementada para o fluxo principal de CRUD. A lógica de busca e filtros pode, futuramente, ser movida para o backend para melhorar performance e centralizar a regra.
+
+## Endpoints da API
+
+### 1. Listar todos os professores
+GET /api/professores  
+Descrição: Retorna uma lista de todos os professores.
+Resposta: 200 OK com a lista de professores.
+
+### 2. Buscar professores
+GET /api/professores/search  
+Descrição: Busca professores com base nos parâmetros opcionais search e filter.
+
+Parâmetros de consulta:
+- search (opcional): Termo de busca para inscricao (correspondência exata) ou unidade (correspondência parcial).
+- filter (opcional, padrão: todos): Filtra por status. Valores possíveis:
+- todos: Todos os professores, exceto os desligados.
+- ativos: Professores ativos.
+- inativos: Professores inativos.
+- desligados: Professores desligados.
+
+Resposta:
+- 200 OK: Lista de professores correspondentes.
+- 204 No Content: Nenhum professor encontrado.
+
+Exemplo de requisição:
+curl -X GET "http://localhost:8080/api/professores/search?search=example&filter=ativos" -H "accept: application/json"
+
+### 3. Buscar professor por ID
+GET /api/professores/{id}  
+Descrição: Retorna um professor pelo ID.
+Resposta: 200 OK com os detalhes do professor ou 404 Not Found.
+
+### 4. Buscar professores por unidade
+GET /api/professores/unidade/{unidade}  
+Descrição: Retorna professores pela unidade.
+Resposta: 200 OK com a lista de professores.
+
+### 5. Criar um professor
+POST /api/professores  
+Descrição: Cria um novo professor.
+Corpo da requisição: Objeto JSON com os detalhes do professor.
+Resposta: 200 OK com o professor criado.
+
+### 6. Atualizar um professor
+PUT /api/professores/{id}  
+Descrição: Atualiza um professor existente.
+Corpo da requisição: Objeto JSON com os detalhes atualizados.
+Resposta: 200 OK com o professor atualizado.
+
+### 7. Excluir um professor
+DELETE /api/professores/{id}
+Descrição: Exclui um professor pelo ID.
+Resposta: 204 No Content.
