@@ -1,23 +1,21 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import ConfirmDialog from './components/ConfirmDialog.jsx';
 import TeacherForm, { emptyTeacher } from './components/TeacherForm.jsx';
 import TeacherList from './components/TeacherList.jsx';
-import { mockTeachers } from './data/mockTeachers.js';
-
-function generateNextCadastroId(teachers) {
-  const maxId = teachers.reduce((max, teacher) => {
-    return Math.max(max, Number(teacher.cadastroId) || 0);
-  }, 0);
-
-  return maxId + 1;
-}
+import Toast from './components/Toast.jsx';
+import { createProfessor, deleteProfessor, fetchProfessores, updateProfessor } from './services/professoresApi.js';
 
 export default function App() {
-  const [teachers, setTeachers] = useState(mockTeachers);
+  const [teachers, setTeachers] = useState([]);
   const [formData, setFormData] = useState(emptyTeacher);
   const [editingId, setEditingId] = useState('');
   const [filter, setFilter] = useState('todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [toast, setToast] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
   const hasSearchQuery = normalizedSearchQuery.length > 0;
   const isInscricaoSearch = /^\d{11}$/.test(normalizedSearchQuery);
@@ -52,6 +50,35 @@ export default function App() {
     );
   }, [teachers, filter, normalizedSearchQuery, isInscricaoSearch]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadTeachers() {
+      try {
+        setLoading(true);
+        setError('');
+        const data = await fetchProfessores();
+        if (isMounted) {
+          setTeachers(data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err.message || 'Erro ao carregar professores.');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadTeachers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const emptyMessage = isInscricaoSearch
     ? 'Cadastro nao encontrado.'
     : 'Nenhum professor cadastrado com esse filtro.';
@@ -69,9 +96,16 @@ export default function App() {
     setEditingId('');
   }
 
-  function closeForm() {
+  function showToast(message, type = 'success') {
+    setToast({ message, type });
+  }
+
+  function closeForm({ showCancelToast = false } = {}) {
     resetForm();
     setIsFormVisible(false);
+    if (showCancelToast) {
+      showToast('Operação cancelada.', 'success');
+    }
   }
 
   function openCreateForm() {
@@ -80,58 +114,77 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    if (editingId) {
-      setTeachers((prev) =>
-        prev.map((teacher) =>
-          teacher.cadastroId === editingId ? { ...formData } : teacher
-        )
-      );
+    try {
+      setError('');
+
+      if (editingId) {
+        const updatedTeacher = await updateProfessor(editingId, formData);
+        setTeachers((prev) =>
+          prev.map((teacher) =>
+            teacher.id === editingId ? updatedTeacher : teacher
+          )
+        );
+        showToast('Professor atualizado com sucesso!', 'success');
+        closeForm();
+        return;
+      }
+
+      const createdTeacher = await createProfessor(formData);
+      setTeachers((prev) => [createdTeacher, ...prev]);
+      showToast('Professor criado com sucesso!', 'success');
       closeForm();
-      return;
+    } catch (err) {
+      const message = err.message || 'Erro ao salvar professor.';
+      setError(message);
+      showToast(message, 'error');
     }
-
-    const newTeacher = {
-      ...formData,
-      cadastroId: generateNextCadastroId(teachers)
-    };
-
-    setTeachers((prev) => [newTeacher, ...prev]);
-    closeForm();
   }
 
   function handleEdit(teacher) {
-    setEditingId(teacher.cadastroId);
+    setEditingId(teacher.id);
     setFormData(teacher);
     setIsFormVisible(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function handleDelete(cadastroId) {
-    const confirmDelete = window.confirm('Deseja realmente excluir este professor?');
-    if (!confirmDelete) return;
-    setTeachers((prev) =>
-      prev.map((teacher) =>
-        teacher.cadastroId === cadastroId ? { ...teacher, ativo: 2 } : teacher
-      )
-    );
-    if (editingId === cadastroId) closeForm();
+  function requestDelete(cadastroId) {
+    setConfirmDelete(cadastroId);
   }
 
-  function handleToggleActive(cadastroId) {
-    setTeachers((prev) =>
-      prev.map((teacher) =>
-        teacher.cadastroId === cadastroId
-          ? { ...teacher, ativo: teacher.ativo === 1 ? 0 : 1 }
-          : teacher
-      )
-    );
+  async function handleDelete(cadastroId) {
+    try {
+      setError('');
+      await deleteProfessor(cadastroId);
+      setTeachers((prev) => prev.filter((teacher) => teacher.id !== cadastroId));
+      showToast('Professor excluído com sucesso!', 'success');
+      if (editingId === cadastroId) closeForm();
+    } catch (err) {
+      const message = err.message || 'Erro ao excluir professor.';
+      setError(message);
+      showToast(message, 'error');
+    } finally {
+      setConfirmDelete(null);
+    }
   }
+
 
   return (
     <div className="app-shell">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {confirmDelete !== null && (
+        <ConfirmDialog
+          title="Excluir professor"
+          message="Tem certeza que deseja excluir este professor?"
+          onCancel={() => {
+            setConfirmDelete(null);
+            showToast('Exclusão cancelada.', 'success');
+          }}
+          onConfirm={() => handleDelete(confirmDelete)}
+        />
+      )}
       <header className="hero">
         <p className="hero-kicker">Painel Administrativo</p>
         <h1>Cadastro de Professores</h1>
@@ -144,7 +197,7 @@ export default function App() {
             formData={formData}
             onChange={handleChange}
             onSubmit={handleSubmit}
-            onCancelEdit={closeForm}
+            onCancelEdit={() => closeForm({ showCancelToast: true })}
             isEditing={Boolean(editingId)}
           />
         )}
@@ -198,13 +251,24 @@ export default function App() {
           )}
         </section>
 
-        <TeacherList
-          teachers={filteredTeachers}
-          emptyMessage={emptyMessage}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onToggleActive={handleToggleActive}
-        />
+        {loading ? (
+          <section className="panel list-panel">
+            <h2>Professores</h2>
+            <p className="muted">Carregando professores...</p>
+          </section>
+        ) : error ? (
+          <section className="panel list-panel">
+            <h2>Professores</h2>
+            <p className="muted">{error}</p>
+          </section>
+        ) : (
+          <TeacherList
+            teachers={filteredTeachers}
+            emptyMessage={emptyMessage}
+            onEdit={handleEdit}
+            onDelete={requestDelete}
+          />
+        )}
       </main>
 
       <footer className="app-footer">

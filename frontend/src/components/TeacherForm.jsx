@@ -1,5 +1,5 @@
 const emptyTeacher = {
-  cadastroId: '',
+  id: '',
   nome: '',
   inscricao: '',
   foto: '',
@@ -26,8 +26,8 @@ export default function TeacherForm({ formData, onChange, onSubmit, onCancelEdit
       <form onSubmit={onSubmit} className="teacher-form">
         {isEditing && (
           <label>
-            ID de cadastro
-            <input name="cadastroId" value={formData.cadastroId} readOnly disabled />
+            ID do professor
+            <input name="id" value={formData.id} readOnly disabled />
           </label>
         )}
 
@@ -37,7 +37,7 @@ export default function TeacherForm({ formData, onChange, onSubmit, onCancelEdit
         </label>
 
         <label>
-          Numero de inscricao
+          inscricao
           <input
             name="inscricao"
             value={formData.inscricao}
@@ -64,30 +64,30 @@ export default function TeacherForm({ formData, onChange, onSubmit, onCancelEdit
         </div>
 
         <label>
-          Numero da unidade
+          unidade
           <input name="unidade" value={formData.unidade} onChange={onChange} required />
         </label>
 
         <div className="time-row">
           <label>
-            Horario de entrada
+            entrada
             <input type="time" name="entrada" value={formData.entrada} onChange={onChange} required />
           </label>
 
           <label>
-            Horario de saida
+            saida
             <input type="time" name="saida" value={formData.saida} onChange={onChange} required />
           </label>
         </div>
 
         <div className="time-row">
           <label>
-            Almoco inicio
+            almocoInicio
             <input type="time" name="almocoInicio" value={formData.almocoInicio} onChange={onChange} required />
           </label>
 
           <label>
-            Almoco fim
+            almocoFim
             <input type="time" name="almocoFim" value={formData.almocoFim} onChange={onChange} required />
           </label>
         </div>

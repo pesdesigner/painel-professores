@@ -27,6 +27,101 @@ body {
   min-height: 100vh;
 }
 
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 33, 51, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+}
+
+.confirm-dialog {
+  background: white;
+  border-radius: 14px;
+  padding: 1.2rem;
+  width: min(420px, 100%);
+  box-shadow: 0 16px 40px rgba(17, 31, 47, 0.2);
+}
+
+.confirm-dialog h3 {
+  margin: 0 0 0.5rem;
+}
+
+.confirm-dialog p {
+  margin: 0 0 1rem;
+  color: var(--muted);
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: white;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(17, 31, 47, 0.18);
+  font-weight: 600;
+  animation: toast-in 0.2s ease;
+}
+
+.toast.success {
+  background: var(--ok);
+}
+
+.toast.error {
+  background: var(--danger);
+}
+
+.toast.closing {
+  animation: toast-out 0.18s ease forwards;
+}
+
+.toast-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 0.9rem;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
 .app-shell {
   width: min(1180px, 100% - 2rem);
   margin: 2rem auto;

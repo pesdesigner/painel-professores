@@ -1,4 +1,4 @@
-export default function TeacherList({ teachers, emptyMessage, onEdit, onDelete, onToggleActive }) {
+export default function TeacherList({ teachers, emptyMessage, onEdit, onDelete }) {
   const fallbackPhoto = '/default-teacher.svg';
 
   if (teachers.length === 0) {
@@ -15,7 +15,7 @@ export default function TeacherList({ teachers, emptyMessage, onEdit, onDelete, 
       <h2>Professores ({teachers.length})</h2>
       <div className="teacher-grid">
         {teachers.map((teacher) => (
-          <article className="teacher-card" key={teacher.cadastroId}>
+          <article className="teacher-card" key={teacher.id}>
             <img
               src={teacher.foto || fallbackPhoto}
               alt={`Foto de ${teacher.nome}`}
@@ -26,7 +26,7 @@ export default function TeacherList({ teachers, emptyMessage, onEdit, onDelete, 
             />
             <div className="teacher-main">
               <h3>{teacher.nome}</h3>
-              <p><strong>ID:</strong> {teacher.cadastroId}</p>
+              <p><strong>ID:</strong> {teacher.id}</p>
               <p><strong>Inscricao:</strong> {teacher.inscricao}</p>
               <p><strong>Unidade:</strong> {teacher.unidade}</p>
               <p><strong>Entrada/Saida:</strong> {teacher.entrada} - {teacher.saida}</p>
@@ -41,10 +41,7 @@ export default function TeacherList({ teachers, emptyMessage, onEdit, onDelete, 
 
             <div className="teacher-actions">
               <button className="btn-secondary" onClick={() => onEdit(teacher)} type="button">Editar</button>
-              <button className="btn-secondary" onClick={() => onToggleActive(teacher.cadastroId)} type="button">
-                {teacher.ativo === 1 ? 'Desativar' : 'Ativar'}
-              </button>
-              <button className="btn-danger" onClick={() => onDelete(teacher.cadastroId)} type="button">Excluir</button>
+              <button className="btn-danger" onClick={() => onDelete(teacher.id)} type="button">Excluir</button>
             </div>
           </article>
         ))}
