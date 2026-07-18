@@ -32,9 +32,15 @@ docker compose up -d
 
 ## Backend
 
+O backend foi implementado utilizando Java 21, Spring Boot e JPA para fornecer uma API REST conectada ao PostgreSQL.
+
+### Configuração do Banco de Dados
+
+Certifique-se de que o banco de dados PostgreSQL está em execução. Você pode usar o Docker Compose para subir o banco:
+
 ```bash
-cd backend
-mvn spring-boot:run
+cd infra
+docker compose up -d
 ```
 
 ## Escopo atual implementado no frontend
@@ -56,5 +62,3 @@ mvn spring-boot:run
 - Filtros de status: todos, ativos, inativos e desligados
 	- Desligados aparece apenas quando ha busca preenchida
 	- Todos/Ativos/Inativos nao exibem registros com status 2
-
-Dados ainda mockados. Proximo passo recomendado: integrar frontend com API Java e persistencia PostgreSQL.
